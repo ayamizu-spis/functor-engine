@@ -5,39 +5,41 @@ class APIClient:
     def __init__(self, base_url="http://localhost:8000"):
         self.base_url = base_url
 
-    def initialize_world(self, config_text: str):
+    def _handle_request(self, method, url, **kwargs):
         try:
-            response = requests.post(
-                f"{self.base_url}/world/initialize",
-                json={"config_text": config_text}
-            )
-            response.raise_for_status()
+            response = requests.request(method, url, **kwargs)
+            # ステータスコードが4xx, 5xxの場合でも、サーバーからのレスポンス(detail)を取得して表示する
+            if not response.ok:
+                try:
+                    error_detail = response.json().get("detail", response.text)
+                    return {"error": f"{response.status_code} Error: {error_detail}"}
+                except:
+                    return {"error": f"{response.status_code} Error: {response.reason}"}
             return response.json()
         except requests.exceptions.RequestException as e:
             return {"error": str(e)}
+
+    def initialize_world(self, config_text: str):
+        return self._handle_request(
+            "POST",
+            f"{self.base_url}/world/initialize",
+            json={"config_text": config_text}
+        )
 
     def translate(self, text: str):
-        try:
-            response = requests.post(
-                f"{self.base_url}/translate",
-                json={"text": text}
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e)}
+        return self._handle_request(
+            "POST",
+            f"{self.base_url}/translate",
+            json={"text": text}
+        )
 
     def translate_image(self, image_file):
-        try:
-            files = {"file": image_file}
-            response = requests.post(
-                f"{self.base_url}/translate/image",
-                files=files
-            )
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            return {"error": str(e)}
+        files = {"file": image_file}
+        return self._handle_request(
+            "POST",
+            f"{self.base_url}/translate/image",
+            files=files
+        )
 
     def get_graph_data(self):
         try:
