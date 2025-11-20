@@ -15,7 +15,7 @@ pip install -r functor_engine_web/backend/requirements.txt
 pip install -r functor_engine_web/frontend/requirements.txt
 
 echo Starting Backend Server...
-start "Functor Engine Backend" cmd /k "call .venv\Scripts\activate && cd functor_engine_web/backend && uvicorn main:app --reload"
+start "Functor Engine Backend" cmd /k "call .venv\Scripts\activate && cd functor_engine_web/backend && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
 
 echo Starting Frontend App...
 start "Functor Engine Frontend" cmd /k "call .venv\Scripts\activate && cd functor_engine_web/frontend && streamlit run app.py"
