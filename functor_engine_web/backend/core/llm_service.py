@@ -12,13 +12,19 @@ from .models import WorldObject, Morphism
 class FunctorEngine:
     def __init__(self, graph: CategoryGraph, api_key: str):
         self.graph = graph
+        
+        # テキスト処理・推論用モデル
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-3-pro-preview",
+            model="gemini-3-pro-preview",  # 最新のテキスト/マルチモーダルモデルを指定
             google_api_key=api_key,
             temperature=0.7
         )
+        
+        # 画像解析用モデル
+        # ユーザー指定の 'gemini-3-pro-image-preview' を設定
+        # ※ Gemini 3 Pro がマルチモーダル対応であれば、ここも "gemini-3-pro-preview" で動作する可能性があります
         self.vision_llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash-image",
+            model="gemini-3-pro-image-preview",  # 指定の画像用モデル
             google_api_key=api_key,
             temperature=0.7
         )

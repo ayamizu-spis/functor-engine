@@ -2,8 +2,8 @@ fastapi
 uvicorn
 networkx
 langchain
-langchain-google-genai
-google-genai
+langchain-google-genai>=1.0.0
+google-genai>=0.3.0
 pydantic
 python-dotenv
 python-multipart
