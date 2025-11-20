@@ -95,8 +95,27 @@ class FunctorEngine:
         ]
         
         response = await self.llm.ainvoke(messages)
-        translated_text = response.content
         
+        content = response.content
+        translated_text = ""
+
+        if isinstance(content, str):
+            # 文字列ならそのまま使用
+            translated_text = content
+        elif isinstance(content, list):
+            # リスト(Gemini 3のマルチモーダル形式)なら、テキスト部分を結合
+            # 例: [{'type': 'text', 'text': 'こんにちは'}] -> 'こんにちは'
+            parts = []
+            for block in content:
+                if isinstance(block, dict) and "text" in block:
+                    parts.append(block["text"])
+                elif isinstance(block, str):
+                    parts.append(block)
+            translated_text = "".join(parts)
+        else:
+            # それ以外は文字列化
+            translated_text = str(content)
+
         return {
             "original_text": text,
             "translated_text": translated_text,
