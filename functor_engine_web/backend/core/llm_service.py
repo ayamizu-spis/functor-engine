@@ -5,7 +5,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from .graph_logic import CategoryGraph
-from .models import WorldNode, Morphism
+from .models import WorldObject, Morphism
 
 class FunctorEngine:
     def __init__(self, graph: CategoryGraph, api_key: str):
@@ -108,7 +108,7 @@ class FunctorEngine:
             data = await chain.ainvoke({"text": world_text})
             
             for node_data in data.get("nodes", []):
-                node = WorldNode(**node_data)
+                node = WorldObject(**node_data)
                 self.graph.add_node(node)
                 
             for edge_data in data.get("edges", []):

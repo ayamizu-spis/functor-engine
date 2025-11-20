@@ -1,13 +1,13 @@
 import networkx as nx
 from typing import List, Dict, Any
-from .models import WorldNode, Morphism
+from .models import WorldObject, Morphism
 
 class CategoryGraph:
     def __init__(self):
         # MultiDiGraph allows multiple edges between nodes (multiple laws/relationships)
         self.graph = nx.MultiDiGraph()
 
-    def add_node(self, node: WorldNode):
+    def add_node(self, node: WorldObject):
         self.graph.add_node(node.id, data=node)
 
     def add_morphism(self, morphism: Morphism):
@@ -36,7 +36,7 @@ class CategoryGraph:
         """Exports the graph in a format suitable for PyVis/Vis.js."""
         nodes = []
         for n_id, attrs in self.graph.nodes(data=True):
-            node_data: WorldNode = attrs.get('data')
+            node_data: WorldObject = attrs.get('data')
             if node_data:
                 nodes.append({
                     "id": n_id,

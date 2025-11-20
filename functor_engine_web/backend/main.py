@@ -9,14 +9,26 @@ from core.llm_service import FunctorEngine
 from core.models import TranslationRequest, TranslationResponse, GraphDataResponse
 
 # Load environment variables
-# Try to load from the project root (2 levels up from here if running from backend dir, or just absolute path)
-# The user specified the file is at d:/VRChat/World/OccultPunk/Simulator/FunctorEngine/Gemini.env
-ENV_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../Gemini.env"))
-if os.path.exists(ENV_PATH):
+# Load environment variables
+def find_env_file(filename="Gemini.env"):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    while True:
+        file_path = os.path.join(current_dir, filename)
+        if os.path.exists(file_path):
+            return file_path
+        parent_dir = os.path.dirname(current_dir)
+        if parent_dir == current_dir: # Reached root
+            return None
+        current_dir = parent_dir
+
+ENV_PATH = find_env_file()
+if ENV_PATH:
     load_dotenv(ENV_PATH)
+    print(f"Loaded environment from: {ENV_PATH}")
 else:
     # Fallback: try local .env
     load_dotenv()
+    print("WARNING: Gemini.env not found, using default .env or system variables.")
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 

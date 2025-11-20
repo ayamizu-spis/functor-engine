@@ -41,17 +41,18 @@ def render_graph(graph_data):
     net.force_atlas_2based()
     
     # Save to a temporary file and read it back
-    # We use a fixed filename in the temp dir to avoid clutter, 
-    # but in a multi-user app this would need to be unique per session.
-    # For a local tool, this is fine.
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode='w+', encoding='utf-8') as tmp:
-            net.save_graph(tmp.name)
-            tmp.seek(0)
-            html_content = tmp.read()
+        # Create a temp file, close it so PyVis can write to it, then read it back
+        fd, path = tempfile.mkstemp(suffix=".html")
+        os.close(fd) # Close the file descriptor immediately
+        
+        net.save_graph(path)
+        
+        with open(path, 'r', encoding='utf-8') as f:
+            html_content = f.read()
         
         # Clean up temp file
-        os.unlink(tmp.name)
+        os.unlink(path)
         
         components.html(html_content, height=510)
         return None

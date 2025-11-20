@@ -3,7 +3,7 @@ from typing import List, Dict, Optional, Any
 
 # --- Domain Models ---
 
-class WorldNode(BaseModel):
+class WorldObject(BaseModel):
     """Represents a concept or object in the world."""
     id: str
     label: str
