@@ -11,7 +11,7 @@ class FunctorEngine:
     def __init__(self, graph: CategoryGraph, api_key: str):
         self.graph = graph
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash",
+            model="gemini-pro",
             google_api_key=api_key,
             temperature=0.7
         )
