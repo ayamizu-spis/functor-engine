@@ -3,7 +3,9 @@ import json
 from typing import List, Dict, Any
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
+import base64
 from .graph_logic import CategoryGraph
 from .models import WorldObject, Morphism
 
@@ -11,7 +13,12 @@ class FunctorEngine:
     def __init__(self, graph: CategoryGraph, api_key: str):
         self.graph = graph
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-pro",
+            model="gemini-3-pro-preview",
+            google_api_key=api_key,
+            temperature=0.7
+        )
+        self.vision_llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash-image",
             google_api_key=api_key,
             temperature=0.7
         )
@@ -89,6 +96,28 @@ class FunctorEngine:
             "translated_text": translated_text,
             "applied_laws": applied_laws
         }
+
+    async def translate_image(self, image_data: bytes, mime_type: str) -> Dict[str, Any]:
+        """Translates/Analyzes an image based on the world graph."""
+        
+        # 1. Analyze image to get description/entities
+        # We use the vision model for this
+        image_b64 = base64.b64encode(image_data).decode("utf-8")
+        
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "Describe this image in detail, focusing on key objects, actions, and atmosphere. Return a text description."},
+                {"type": "image_url", "image_url": {"url": f"data:{mime_type};base64,{image_b64}"}}
+            ]
+        )
+        
+        # First, get the description
+        description_response = await self.vision_llm.ainvoke([message])
+        description = description_response.content
+        
+        # 2. Now use the standard translation flow with this description
+        # This reuses the logic of mapping entities to laws
+        return await self.translate_text(description)
 
     async def initialize_world_from_text(self, world_text: str):
         """Parses a world description text and populates the graph."""

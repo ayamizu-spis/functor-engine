@@ -126,7 +126,7 @@ with col1:
             height=300,
             placeholder="例:\nエーテルランド王国では魔法はクリスタルスパイアから流れています。国王は鉄腕で統治していますが、赤のバラの反乱は成長しています..."
         )
-        if st.button("Worldを初期化"):
+        if st.button("Worldを初期化", key="init_world_text"):
             if not world_def_input.strip():
                 st.warning("Worldを定義する文章を入力してください。")
             else:
@@ -148,7 +148,7 @@ with col1:
             
             st.text_area("Preview (Combined)", combined_text, height=150, disabled=True)
             
-            if st.button("Worldを初期化"):
+            if st.button("Worldを初期化", key="init_world_file"):
                 with st.spinner("Worldを初期化中..."):
                     result = api.initialize_world(combined_text)
                     if "error" in result:
@@ -180,7 +180,10 @@ with col2:
         st.info("File Status: " + ("Ready" if target_text else "Waiting"))
 
     with col2tab3:
-        st.warning("実装予定 (Image Input)")
+        image_file = st.file_uploader("画像をアップロード", type=["png", "jpg", "jpeg"], key="target_image")
+        if image_file:
+            st.image(image_file, caption="Uploaded Image", use_column_width=True)
+            st.info("File Status: Ready")
 
     st.markdown("---")
     on = st.toggle("拡張機能", False, key="expand")
@@ -193,11 +196,15 @@ with col3:
     st.subheader("３．生成結果")
     
     if st.button("文章を生成", type="primary"):
-        if not target_text.strip():
-            st.warning("文章を入力してください。または、ファイルをアップロードしてください。")
+        if not target_text.strip() and not image_file:
+            st.warning("文章を入力するか、画像をアップロードしてください。")
         else:
-            with st.spinner("文章を生成中..."):
-                result = api.translate(target_text)
+            with st.spinner("生成中..."):
+                if image_file:
+                     # Prioritize image if uploaded
+                     result = api.translate_image(image_file)
+                else:
+                    result = api.translate(target_text)
                 
                 if "error" in result:
                     st.error(f"文章生成に失敗しました: {result['error']}")

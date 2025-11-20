@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 from typing import Dict, Any
 from dotenv import load_dotenv
@@ -68,6 +68,18 @@ async def translate(request: TranslationRequest):
     
     result = await engine.translate_text(request.text)
     return TranslationResponse(**result)
+
+@app.post("/translate/image", response_model=TranslationResponse)
+async def translate_image(file: UploadFile = File(...)):
+    if not engine:
+        raise HTTPException(status_code=500, detail="Engine not initialized")
+    
+    try:
+        contents = await file.read()
+        result = await engine.translate_image(contents, file.content_type)
+        return TranslationResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/world/graph", response_model=GraphDataResponse)
 def get_graph():
