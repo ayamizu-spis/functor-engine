@@ -149,7 +149,7 @@ FunctorEngine/
 本システムは**圏論（Category Theory）**の概念に基づいています:
 - **対象（Object）**: 世界を構成する概念・実体
 - **射（Morphism）**: 概念間の関係性・法則
-- **関手（Functor）**: 現実世界から並行世界への構造保存写像
+- **関手（Functor）**: 現実から異世界への構造保存写像
 
 詳細は [Functor Engine 実装仕様書.md](Functor%20Engine%20実装仕様書.md) を参照してください。
 
